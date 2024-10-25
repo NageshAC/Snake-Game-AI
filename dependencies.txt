@@ -1,0 +1,5 @@
+pygame
+numpy
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+matplotlib
+ipython
