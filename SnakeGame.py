@@ -206,6 +206,7 @@ class SnakeGame :
 
         # Calculate new position
         new_position : np.ndarray = self.snake[0] + DIRECTIONS[self.movement_direction]
+        self.is_food = False
 
         if self._is_game_over(new_position):
             return False
@@ -340,7 +341,8 @@ class SnakeGame :
     def _is_food (self, coord : tuple[int, int]) -> bool:
         if type(coord) == np.ndarray:
             coord = tuple(coord)
-        return True if self.grid[coord] == GRID_SYMBOL.FOOD.value else False
+        self.is_food = True if self.grid[coord] == GRID_SYMBOL.FOOD.value else False
+        return self.is_food
 
     def _draw_sqr (self, coord : tuple[int, int], typ : str):
 

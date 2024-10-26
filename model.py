@@ -60,12 +60,16 @@ class Lin_Qnet (nn.Module):
         return [], []
 
 class DeepQTrainer:
-    def __init__(self, model:nn.Module, gamma:float, optimizer:optim.Optimizer, criterion:nn.Module):
+    def __init__(self, 
+                 model:nn.Module, 
+                 gamma:float, 
+                 optimizer:optim.Optimizer | None = None, 
+                 criterion:nn.Module | None = None):
 
         self.gamma = gamma
         self.model = model
-        self.optimizer = optimizer
-        self.criterion = criterion
+        self.optimizer = optimizer if optimizer else optim.Adam(model.parameters(), lr=0.001)
+        self.criterion = criterion if criterion else nn.MSELoss()
 
     def train(self, 
               state:list[int]|list[list[int]], 
@@ -100,7 +104,7 @@ class DeepQTrainer:
         # Q_new = reward + gamma * max (prediction of nxt_state)
         # update this Q_new to target node where the action is maximum
         # TODO: can be done without using loop iteration
-        for idx in range(game_over):
+        for idx in range(len(game_over)):
             Q_new = reward[idx]
 
             # since there is no next state if game over
