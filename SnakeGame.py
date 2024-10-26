@@ -199,6 +199,48 @@ class SnakeGame :
         # refresh window
         self._refresh()
 
+    def step_snake(self) -> bool:
+
+        # Calculate new position
+        new_position : np.ndarray = self.snake[0] + DIRECTIONS[self.movement_direction]
+
+        # if head touches snake or wall in next postion then end the game
+        if self._is_snake (new_position) or self._is_wall (new_position):
+            # print("\n\nGame Over\n\n------------Quiting------------\n\n")
+            return False
+        
+        # if new position is not food, remove tail
+        if self._is_food (new_position.copy()):
+            self._create_food()
+            self.score += 1
+            self._update_scoreboard()
+        else:
+            self._draw_sqr(self.snake.pop(), COLOR.BG.name)
+
+        # change previous head to tail
+        self._draw_sqr(self.snake[0], COLOR.SNAKE_BODY.name)
+        # add new position as head
+        self._draw_sqr(new_position.copy(), COLOR.SNAKE_HEAD.name)
+
+        self._refresh()
+        return True
+
+    def run (self) -> None:
+        time : int = perf_counter_ns()
+        NS_PER_FRAME : float = 1e+9 / MPS # nano second per frame 
+
+        while self._handle_keystroke() and not self._quit_event():
+            if ((perf_counter_ns() - time) - NS_PER_FRAME) > -1e3:
+                time = perf_counter_ns()    # Reset timer
+                # self.clock.tick()
+                if not self.step_snake():
+                    break
+
+                # print('time per frame: ', int((perf_counter_ns() - time) * 1e-3), ' micro s')
+                # print('Frame Rate: ', self.clock.get_fps())
+        pygame.quit()
+
+
     def _update_scoreboard (self) -> None:
         # Redraw scoreboard
         score_text = self._score_font.render(
@@ -277,7 +319,6 @@ class SnakeGame :
 
         # self.window.blit(self._play_surf, self._offset_play_area)
         # pygame.display.flip() # initial frame
-
 
     def _get_pix (self, coord : tuple[int, int]) -> tuple[int, int]:
         return pygame_loc((
@@ -361,21 +402,6 @@ class SnakeGame :
         self.window.blit(self._play_surf, self._offset_play_area)
         pygame.display.flip() # initial frame
 
-    def run (self) -> None:
-        time : int = perf_counter_ns()
-        NS_PER_FRAME : float = 1e+9 / MPS # nano second per frame 
-
-        while self._handle_keystroke() and not self._quit_event():
-            if ((perf_counter_ns() - time) - NS_PER_FRAME) > -1e3:
-                time = perf_counter_ns()    # Reset timer
-                # self.clock.tick()
-                if not self.step_snake():
-                    break
-
-                # print('time per frame: ', int((perf_counter_ns() - time) * 1e-3), ' micro s')
-                # print('Frame Rate: ', self.clock.get_fps())
-        pygame.quit()
-
     def _quit_event(self) -> bool:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -426,32 +452,7 @@ class SnakeGame :
 
         return True
     
-    def step_snake(self) -> bool:
-
-        # Calculate new position
-        new_position : np.ndarray = self.snake[0] + DIRECTIONS[self.movement_direction]
-
-        # if head touches snake or wall in next postion then end the game
-        if self._is_snake (new_position) or self._is_wall (new_position):
-            # print("\n\nGame Over\n\n------------Quiting------------\n\n")
-            return False
-        
-        # if new position is not food, remove tail
-        if self._is_food (new_position.copy()):
-            self._create_food()
-            self.score += 1
-            self._update_scoreboard()
-        else:
-            self._draw_sqr(self.snake.pop(), COLOR.BG.name)
-
-        # change previous head to tail
-        self._draw_sqr(self.snake[0], COLOR.SNAKE_BODY.name)
-        # add new position as head
-        self._draw_sqr(new_position.copy(), COLOR.SNAKE_HEAD.name)
-
-        self._refresh()
-        return True
-
+   
 
 
 
