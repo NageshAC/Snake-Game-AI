@@ -4,6 +4,8 @@ import  numpy       as      np
 from    enum        import  Enum, IntEnum
 from    collections import  deque
 from    time        import  perf_counter_ns
+from    collections import  OrderedDict
+
 
 from pygame.locals import (
     K_UP,
@@ -51,7 +53,7 @@ class GRID_SYMBOL (IntEnum):
     FOOD   = 2
     SNAKE  = 3
 
-DIRECTIONS = dict({
+DIRECTIONS = OrderedDict({
     'UP'      : np.array([-1,  0], dtype=int),
     'RIGHT'   : np.array([ 0,  1], dtype=int),
     'DOWN'    : np.array([ 1,  0], dtype=int),
@@ -63,6 +65,7 @@ def pygame_loc (loc: tuple[int, int] | np.ndarray) -> tuple[int, int]:
     return (loc[1], loc[0])
 
 class SnakeGame :
+
     def __init__ (self, grid_res:tuple[int,int], grid_pxl_res:int, mps:int, game_name:str = "Snake") -> None :
         self.grid_res       = grid_res
         self.grid_pxl_res   = grid_pxl_res
@@ -204,9 +207,7 @@ class SnakeGame :
         # Calculate new position
         new_position : np.ndarray = self.snake[0] + DIRECTIONS[self.movement_direction]
 
-        # if head touches snake or wall in next postion then end the game
-        if self._is_snake (new_position) or self._is_wall (new_position):
-            # print("\n\nGame Over\n\n------------Quiting------------\n\n")
+        if self._is_game_over(new_position):
             return False
         
         # if new position is not food, remove tail
@@ -452,7 +453,13 @@ class SnakeGame :
 
         return True
     
-   
+    def _is_game_over(self, coord : tuple[int, int]) -> bool:
+        # if head touches snake or wall in next postion then end the game
+        if self._is_snake (coord) or self._is_wall (coord):
+            # print("\n\nGame Over\n\n------------Quiting------------\n\n")
+            return True
+        
+        return False
 
 
 
