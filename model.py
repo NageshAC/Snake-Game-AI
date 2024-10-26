@@ -64,19 +64,60 @@ class Lin_Qnet (nn.Module):
 
 
 class DeepQTrainer:
-    def __init__(self, model:nn.Module, lr:float, gamma:float, optimizer:optim.Optimizer, criterion:nn.Module):
+    def __init__(self, model:nn.Module, gamma:float, optimizer:optim.Optimizer, criterion:nn.Module):
 
-        self.lr = lr
         self.gamma = gamma
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
 
-    def train(self, state, action, nxt_state, reward, done):
-        pass
+    def train(self, 
+              state:list[int]|list[list[int]], 
+              action:list[int]|list[list[int]], 
+              nxt_state:list[int]|list[list[int]], 
+              reward:int|list[int], 
+              done:int|list[int]):
+        
+        # convert all parameters to pyTorch tensors
+        state       = torch.tensor(state,       dtype=torch.float)
+        nxt_state   = torch.tensor(nxt_state,   dtype=torch.float)
+        reward      = torch.tensor(reward,      dtype=torch.float)
+        action      = torch.tensor(action,      dtype=torch.long)
 
+        # if the state is is one dimentional (only one state -> short training)
+        # then convert it to shape (1, x)
+        # else it's anyway in shape (n, x)
+        if len(state.shape) == 1:
+            state     = torch.unsqueeze( state    , 0)
+            nxt_state = torch.unsqueeze( nxt_state, 0)
+            reward    = torch.unsqueeze( reward   , 0)
+            action    = torch.unsqueeze( action   , 0)
+            done      = (done, )
 
+        # get the prediction of current state
+        predict = self.model(state)
 
+        # clone this to target
+        target = predict.clone()
+
+        # update the target to new Q values using the formula:
+        # Q_new = reward + gamma * max (prediction of nxt_state)
+        # update this Q_new to target node where the action is maximum
+        # TODO: can be done without using loop iteration
+        for idx in range(done):
+            Q_new = reward[idx]
+
+            # since there is no next state if game over
+            # ignore game over state
+            if not done[idx]:
+                Q_new += (self.gamma * torch.max(self.model(nxt_state[idx])))
+
+            target[idx][torch.argmax(action).item()] = Q_new
+
+        self.optimizer.zero_grad()
+        loss = self.criterion(target, predict)
+        loss.backward()
+        self.optimizer.step()
 
 if __name__ == '__main__':
     Lin_Qnet([3,12,3])
