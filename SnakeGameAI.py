@@ -12,7 +12,7 @@ from collections import deque
 from time import perf_counter_ns
 
 # Game Window Configuration
-GRID_RESOLUTION : tuple[int, int] = (48, 64)
+GRID_RESOLUTION : tuple[int, int] = (45, 80)
 
 # Pixel Size of each Grid
 GRID_PIXEL_RESOLUTION : int = 10 
@@ -159,8 +159,8 @@ def train() -> None:
 
 
             # ! Reward setting 
-            # * move towards food   +1
-            # * move away from food -1
+            # * move towards food   +5
+            # * move away from food -5
             # * Eat food            +10
             # * Game over           -10
             if game_over:
