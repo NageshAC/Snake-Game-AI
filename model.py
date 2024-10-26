@@ -59,10 +59,6 @@ class Lin_Qnet (nn.Module):
         # print("Saved Model doesnt exists!")
         return [], []
 
-
-
-
-
 class DeepQTrainer:
     def __init__(self, model:nn.Module, gamma:float, optimizer:optim.Optimizer, criterion:nn.Module):
 
@@ -76,7 +72,7 @@ class DeepQTrainer:
               action:list[int]|list[list[int]], 
               nxt_state:list[int]|list[list[int]], 
               reward:int|list[int], 
-              done:int|list[int]):
+              game_over:int|list[int]):
         
         # convert all parameters to pyTorch tensors
         state       = torch.tensor(state,       dtype=torch.float)
@@ -92,7 +88,7 @@ class DeepQTrainer:
             nxt_state = torch.unsqueeze( nxt_state, 0)
             reward    = torch.unsqueeze( reward   , 0)
             action    = torch.unsqueeze( action   , 0)
-            done      = (done, )
+            game_over      = (game_over, )
 
         # get the prediction of current state
         predict = self.model(state)
@@ -104,12 +100,12 @@ class DeepQTrainer:
         # Q_new = reward + gamma * max (prediction of nxt_state)
         # update this Q_new to target node where the action is maximum
         # TODO: can be done without using loop iteration
-        for idx in range(done):
+        for idx in range(game_over):
             Q_new = reward[idx]
 
             # since there is no next state if game over
             # ignore game over state
-            if not done[idx]:
+            if not game_over[idx]:
                 Q_new += (self.gamma * torch.max(self.model(nxt_state[idx])))
 
             target[idx][torch.argmax(action).item()] = Q_new

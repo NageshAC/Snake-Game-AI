@@ -24,7 +24,7 @@ GRID_RESOLUTION : tuple[int, int] = (45, 80)
 GRID_PIXEL_RESOLUTION : int = 10 
 
 # Initial Snake Size
-SNAKE_LENGTH : int = 5
+INIT_SNAKE_LENGTH : int = 5
 
 # Snake Speed in moves per second
 MPS : int = 20 # FPS
@@ -281,8 +281,8 @@ class SnakeGame :
         #! Hence a smaller subset of grid is chosen for snake head placement
         # Grid lenght - snake length - 2 wall 
         snake_head = np.array([
-            random.randint(1+SNAKE_LENGTH, self.grid_res[0]-SNAKE_LENGTH-2), 
-            random.randint(1+SNAKE_LENGTH, self.grid_res[1]-SNAKE_LENGTH-2) 
+            random.randint(1+INIT_SNAKE_LENGTH, self.grid_res[0]-INIT_SNAKE_LENGTH-2), 
+            random.randint(1+INIT_SNAKE_LENGTH, self.grid_res[1]-INIT_SNAKE_LENGTH-2) 
         ], dtype=int)
         self.snake = deque()
         # self.snake.append(snake_head.copy()) #
@@ -294,7 +294,7 @@ class SnakeGame :
         choice_dir = random.choice(posible_dir_keys)    # choose a key at random
         
         snake_body = snake_head.copy()
-        for _ in range(SNAKE_LENGTH-1):
+        for _ in range(INIT_SNAKE_LENGTH-1):
             snake_body += DIRECTIONS[choice_dir]
             # self.snake.append(snake_body.copy())
             self._draw_sqr(snake_body.copy(), COLOR.SNAKE_BODY.name)
